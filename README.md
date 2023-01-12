@@ -15,7 +15,7 @@ Javascript Library for CLI applications.
 #!/usr/bin/env node
 
 const program = require('animaux');
-const app = new program('my-app');
+const app = program('my-app');
 
 app.version('1.0.0').action((command) => {
   console.log(`> Cannot execute ${command}`);
