@@ -1,6 +1,6 @@
 {
   "name": "animaux",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Javascript Library for CLI applications.",
   "main": "./dist/index.js",
   "module": "./dist/index.esm.js",
@@ -32,5 +32,13 @@
   },
   "dependencies": {
     "colors": "^1.4.0"
-  }
+  },
+  "keywords": [
+    "cli",
+    "command-line-interface",
+    "arguments",
+    "parser",
+    "commander",
+    "argv"
+  ]
 }
