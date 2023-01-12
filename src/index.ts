@@ -14,6 +14,7 @@ export interface Options {
    * // $ my-app build --bundle => true
    * // $ my-app build -b => true
    * // $ my-app build -B => false
+   * ```
    */
   strict?: boolean;
 }
