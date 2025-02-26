@@ -2,19 +2,15 @@
 
 const program = require('../dist');
 
-const app = program('my-app');
-
-app.version('1.0.0').action((command) => {
-  console.log(`> Cannot execute ${command}`);
-});
+const app = new program.CLI('greeting').version('1.0.0');
 
 app
-  .command('build <src>', ['b'])
-  .describe('build amazing application!')
-  .option('--output, -o', 'Provide output path.', 'out.js')
-  .action((src, options) => {
-    console.log(`Building "${src}"...`);
-    console.log('  options: ', options);
+  .command('hello <name>')
+  .describe('Greets the user')
+  .option('--greet', 'Greet message', 'Hello')
+  .option('--from', 'From', 'Cat')
+  .action(({ args, options }) => {
+    console.log(`${options.from} says "${options.greet}, ${args.name}"`);
   });
 
-app.parse(process.argv);
+app.parse(process.argv.slice(2));

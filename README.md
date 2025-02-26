@@ -2,10 +2,13 @@
 
 Javascript Library for CLI applications.
 
-### TODO
+## Feature
 
-- [ ] Add `program.example()`
-- [ ] Write Documentation
+- Type-hint
+
+![img](./screenshot-type-safe.png)
+
+- Command and option definition
 
 ## Usage
 
@@ -14,64 +17,60 @@ Javascript Library for CLI applications.
 ```js
 #!/usr/bin/env node
 
-const program = require('animaux');
-const app = program('my-app');
-
-app.version('1.0.0').action((command) => {
-  console.log(`> Cannot execute ${command}`);
-});
+const { program } = require('animaux');
+const app = new program('greeting').version('1.0.0');
 
 app
-  .command('build <src>')
-  .describe('build amazing application!')
-  .option('--output, -o', 'Provide output path.', 'out.js')
-  .action((src, options) => {
-    console.log(`Building "${src}"...`);
-    console.log('  options: ', options);
+  .command('hello <name>')
+  .describe('Greets the user')
+  .option('--greet', 'Greet message', 'Hello')
+  .option('--from', 'From', 'Cat')
+  .action(({ args, options }) => {
+    console.log(`${options.from} says "${options.greet}, ${args.name}"`);
   });
 
-app.parse(process.argv);
+app.parse(process.argv.slice(2));
 ```
 
 #### Result
 
 ```
-$ my-app --help
+$ greeting hello John
+Cat says "Hello, John"
 
-  Usage
-    $ my-app <command> [options]
+$ greeting hello John --from Dog --greet=Yo
+Dog says "Yo, John"
+```
 
-  Commands
-    build        build amazing application!
+#### `--help`
 
-  Options
-    --help, -h       Displays help information.
-    --version, -v    Displays current version.
-    --output, -o     Provide output path. (default out.js)
+```
+$ greeting --help
 
-  Run `my-app <command> --help` for more information.
+Usage
+  $ greeting [command] [options]
+
+Commands
+  hello                Greets the user
+
+Options (global)
+
+Run '<command> --help' for more information on a command.
 ```
 
 ```
-$ my-app build --help
+$ greeting build --help
 
-  Usage
-    $ my-app build <src>
+Usage
+  $ greeting hello <name>
 
-  build amazing application!
+Greets the user
 
-  Alias
-    $ my-app b
-    $ my-app build
+Options (global)
 
-  Options
-    --help, -h       Displays help information.
-    --version, -v    Displays current version.
-    --output, -o     Provide output path. (default out.js)
-
-$ my-app build index.ts --output build.js
-Building "index.ts"...
-  options:  { output: 'build.js', __: [ 'build', 'index.ts' ] }
+Options (scoped)
+  --greet              Greet message  (default: Hello)
+  --from               From  (default: Cat)
 ```
 
 ## License
