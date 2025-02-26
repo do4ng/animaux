@@ -1,6 +1,6 @@
 {
   "name": "animaux",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Javascript Library for CLI applications.",
   "main": "./dist/index.js",
   "module": "./dist/index.esm.js",
