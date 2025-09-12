@@ -6,7 +6,7 @@ Javascript Library for CLI applications.
 
 - Type-hint
 
-![img](./screenshot-type-safe.png)
+![img](https://raw.githubusercontent.com/do4ng/animaux/refs/heads/main/screenshot-type-safe.png)
 
 - Command and option definition
 

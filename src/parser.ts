@@ -1,97 +1,110 @@
-/* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable no-restricted-globals */
-/* eslint-disable prefer-destructuring */
-
 export interface ParserOptions {
   names?: Record<string, string | string[]>;
   strict?: boolean;
 }
 
 export function argsParser(args: string[], opts: ParserOptions = {}) {
-  const $ = {
-    current: null,
+  const parserState = {
+    currentFlag: null as string | null,
   };
   const result: Record<string, any> = {
     __: [],
   };
 
-  const push = (target: string, data: any) => {
-    if (!target) return;
-    target =
-      Object.keys(opts.names || {}).filter((name) => {
-        if (opts.strict) {
-          return (
-            opts.names[name] === target ||
-            (Array.isArray(opts.names[name]) && opts.names[name].includes(target))
-          );
+  const findAlias = (target: string): string => {
+    if (!opts.names) return target;
+
+    for (const name in opts.names) {
+      if (Object.prototype.hasOwnProperty.call(opts.names, name)) {
+        const aliases = opts.names[name];
+        if (Array.isArray(aliases)) {
+          if (opts.strict) {
+            if (aliases.includes(target)) {
+              return name;
+            }
+          } else if (aliases.map((a) => a.toLowerCase()).includes(target.toLowerCase())) {
+            return name;
+          }
+        } else if (typeof aliases === 'string') {
+          if (opts.strict) {
+            if (aliases === target) {
+              return name;
+            }
+          } else if (aliases.toLowerCase() === target.toLowerCase()) {
+            return name;
+          }
         }
-        return (
-          (Array.isArray(opts.names[name]) &&
-            (opts.names[name] as string[])
-              .map((c) => c.toLowerCase())
-              .includes(target.toLowerCase())) ||
-          (typeof opts.names[name] === 'string' &&
-            (opts.names[name] as string).toLowerCase() === target.toLowerCase())
-        );
-      })[0] || target;
-
-    if (!result[target]) result[target] = null;
-    else if (!Array.isArray(result[target])) result[target] = [result[target]];
-
-    const set = (d: any) => {
-      if (Array.isArray(result[target])) result[target].push(d);
-      else result[target] = d;
-    };
-
-    if (typeof data === 'string') {
-      if (!isNaN(data as any)) {
-        // number
-        set(Number(data));
-      } else if (data === 'true') {
-        // boolean(true)
-        set(true);
-      } else if (data === 'false') {
-        // boolean(false)
-        set(false);
-      } else {
-        // string
-        set(data);
       }
+    }
+    return target;
+  };
+
+  const push = (key: string, value: any) => {
+    if (!key) return;
+
+    const targetKey = findAlias(key);
+
+    let processedValue = value;
+    if (typeof value === 'string') {
+      if (value.trim() !== '' && !isNaN(value as any)) {
+        processedValue = Number(value);
+      } else if (value.toLowerCase() === 'true') {
+        processedValue = true;
+      } else if (value.toLowerCase() === 'false') {
+        processedValue = false;
+      }
+    }
+
+    if (result[targetKey] === undefined || result[targetKey] === null) {
+      result[targetKey] = processedValue;
     } else {
-      set(data);
+      if (!Array.isArray(result[targetKey])) {
+        result[targetKey] = [result[targetKey]];
+      }
+      result[targetKey].push(processedValue);
     }
   };
 
   args.forEach((arg) => {
-    // --out
-    if (arg.startsWith('--')) {
-      if (arg === '--') {
-        $.current = null;
-      } else {
-        const sliced = arg.slice(2).split('=');
+    if (arg === '--') {
+      parserState.currentFlag = '__';
+      return;
+    }
+    if (parserState.currentFlag === '__') {
+      push('__', arg);
+      return;
+    }
 
-        if (sliced.length === 1) {
-          $.current = sliced[0];
-        } else {
-          push(sliced[0], sliced[1]);
-        }
+    if (arg.startsWith('--')) {
+      const [key, value] = arg.slice(2).split('=', 2);
+
+      if (key.startsWith('no-')) {
+        push(key.slice(3), false);
+        parserState.currentFlag = null;
+      } else if (value !== undefined) {
+        push(key, value);
+        parserState.currentFlag = null;
+      } else {
+        parserState.currentFlag = key;
       }
-    } else if (arg.startsWith('-')) {
-      for (let i = 1; i < arg.length - 1; i += 1) {
-        $.current = arg[i];
-        push($.current, true);
+    } else if (arg.startsWith('-') && isNaN(Number(arg))) {
+      const flags = arg.slice(1);
+
+      for (let i = 0; i < flags.length - 1; i += 1) {
+        push(flags[i], true);
       }
-      $.current = arg[arg.length - 1];
-    } else if ($.current) {
-      push($.current, arg);
-      $.current = null;
+      parserState.currentFlag = flags[flags.length - 1];
+    } else if (parserState.currentFlag) {
+      push(parserState.currentFlag, arg);
+      parserState.currentFlag = null;
     } else if (arg !== '') {
       push('__', arg);
     }
   });
 
-  if ($.current) {
-    push($.current, true);
+  if (parserState.currentFlag && parserState.currentFlag !== '__') {
+    push(parserState.currentFlag, true);
   }
 
   return result;
