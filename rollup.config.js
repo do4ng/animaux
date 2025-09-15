@@ -1,4 +1,4 @@
-const terser = require('@rollup/plugin-terser');
+// const terser = require('@rollup/plugin-terser');
 const ts = require('@rollup/plugin-typescript');
 const pkg = require('./package.json');
 
@@ -20,6 +20,6 @@ const config = {
     },
   ],
   external: [...Object.keys(pkg.dependencies), ...require('module').builtinModules],
-  plugins: [ts.default({}), terser.default()],
+  plugins: [ts.default({})],
 };
 module.exports = config;
