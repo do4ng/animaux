@@ -11,6 +11,8 @@ export function showHelp(app: CLI, command: string) {
   console.log();
   const $ = '$'.gray;
 
+  const _command = command;
+
   if (command) {
     const cmd = app.commands[command];
 
@@ -38,6 +40,10 @@ export function showHelp(app: CLI, command: string) {
     console.log('\nOptions (scoped)'.bold);
     for (const [, command] of Object.entries(app.commands)) {
       // find options
+
+      // eslint-disable-next-line no-continue
+      if (_command.trim() !== command.raw.split(' ')[0]) continue;
+
       for (const [, option] of Object.entries(command.options || {})) {
         console.log(
           `  ${(option as Option).raw.padEnd(20)} ${

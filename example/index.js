@@ -12,5 +12,13 @@ app
   .action(({ args, options }) => {
     console.log(`${options.from} says "${options.greet}, ${args.name}"`);
   });
+app
+  .command('a')
+  .describe('a the user')
+  .option('--a', 'Greet message', 'Hello')
+  .option('--bc', 'From', 'Cat')
+  .action(({ args, options }) => {
+    console.log(`${options.from} says "${options.greet}, ${args.name}"`);
+  });
 
 app.parse(process.argv.slice(2));

@@ -52,7 +52,14 @@ class CLI<
 
   config: Config = {} as any;
 
-  options: OptArgs = {} as OptArgs;
+  options: OptArgs = {
+    help: { raw: '--help, -h', target: ['help', 'h'], description: 'Show help' },
+    version: {
+      raw: '--version, -v',
+      target: ['version', 'v'],
+      description: 'Show version',
+    },
+  } as any;
 
   private globalAction: ((args: { args: CmdArgs; options: OptArgs }) => void) | null =
     null;
@@ -162,10 +169,7 @@ class CLI<
   }
 
   private concatOptions() {
-    const names: Record<string, string[]> = {
-      help: ['help', 'h'],
-      version: ['version', 'v'],
-    };
+    const names: Record<string, string[]> = {};
 
     for (const [optionName, option] of Object.entries(this.options)) {
       names[optionName] = option.target;
